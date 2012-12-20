@@ -8,6 +8,7 @@ import (
     "mapo/addon"
     "mapo/log"
     "mapo/core"
+    "mapo/webui"
     
     "net/http"
     "os"
@@ -43,6 +44,9 @@ func main() {
     // handler usando come descrizione anche il metodo http tipo GET o POST.
     muxer := NewServeMux()
     
+    // qui si assegna al muxer la funzione che sara' usata per l'autenticazione
+    muxer.SetAuthenticator(core.Authenticator)
+    
     server := &http.Server {
         Addr:   ":8081",
         Handler: muxer,
@@ -63,6 +67,8 @@ func main() {
     muxer.HandleFunc("POST", "/admin/user/{id}", core.UpdateUser)
     
     muxer.HandleFunc("POST", "/admin/studio", core.NewStudio)
+    
+    muxer.HandleFuncNoAuth("GET", "/", webui.Root)
     
     log.Info("start listening for requests")
     
