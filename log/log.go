@@ -21,7 +21,7 @@ const (
 )
 
 func init() {
-    
+
     // create a global logger object
     l.level = debug
 }
@@ -42,9 +42,9 @@ func print(level int, format string, v ...interface{}) {
 
     if level >= l.level {
         tmp := fmt.Sprintf(format, v...)
-        
+
         var msgType string
-        
+
         switch level {
         case all: msgType = "ALL"
         case debug:
@@ -56,14 +56,14 @@ func print(level int, format string, v ...interface{}) {
 //                fmt.Printf("%s %s (%s:%d)\n", msgType, f.Name(), file, line)
 //            }
 //            return
-            
+
         case error: msgType = "ERROR"
         case msg: msgType = "MESSAGE"
         case info: msgType = "INFO"
         }
-        
+
         fmt.Printf("%s: %v\n", msgType, tmp)
-        
+
     }
 }
 
