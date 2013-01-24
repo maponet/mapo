@@ -2,6 +2,8 @@
 *.o
 *.a
 *.so
+*.swp
+*~
 
 # Folders
 _obj
@@ -20,3 +22,5 @@ _cgo_export.*
 _testmain.go
 
 *.exe
+
+*_local.ini
