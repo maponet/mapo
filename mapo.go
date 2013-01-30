@@ -23,6 +23,10 @@ import (
 	"mapo/log"
     "mapo/admin"
 
+    "net/http"
+    "os"
+    "os/signal"
+    "syscall"
     "flag"
 )
 
@@ -49,20 +53,43 @@ func main() {
 
 	// setup application
 
-	// register with supervisor
-	log.Info("Joining supervisor")
-
 	// init db
 	log.Info("Initializing db")
 
 	// load addons
 	log.Info("Loading addons")
 
+    // al momento del spegnimento dell'applicazione potremo trovarci con delle
+    // connessione attive dal parte del cliente. Il handler personalizzato usato
+    // qui, ci permette di dire al server di spegnersi ma prima deve aspettare
+    // che tutte le richieste siano processate e la connessione chiusa.
+    //
+    // Oltre al spegnimento sicuro il ServeMux permette di registra dei nuovi
+    // handler usando come descrizione anche il metodo http tipo GET o POST.
+    muxer := NewServeMux()
+
+    // prepare server
+    server := &http.Server {
+        Addr:   ":8081",
+        Handler: muxer,
+    }
+
+    c := make(chan os.Signal, 1)
+    signal.Notify(c, syscall.SIGINT)
+
+    // aviamo in una nuova gorutine la funzione che ascolterà per il segnale di
+    // spegnimento del server
+    go muxer.getSignalAndClose(c)
+
 	// register handlers
 	log.Info("Registering handlers")
 
+    // register with supervisor
+	log.Info("Joining supervisor")
+
 	// start server
-	log.Info("Accepting requests")
+	log.Info("Listening for requests")
+    log.Info("close server with message: %v", server.ListenAndServe())
 
 	// inform supervisor that we are up
 
