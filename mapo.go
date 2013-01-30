@@ -21,16 +21,33 @@ package main
 
 import (
 	"mapo/log"
+    "mapo/admin"
+
+    "flag"
 )
 
 func main() {
-	// parse flags
-
-	// load config and setup application
-	log.SetLevel(log.DEBUG)
-	log.Info("Setting log level to DEBUG")
 
 	log.Info("Starting application")
+
+	// parse flags
+    var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
+    var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
+    flag.Parse()
+
+    // set log level
+	log.SetLevel(*logLevel)
+	log.Info("Setting log level to %d", *logLevel)
+
+	// load config and setup application
+	log.Info("Loading configuration from file")
+    err := admin.ReadConfiguration(*confFilePath)
+    if err != nil {
+        log.Info("%s, no such file or directory", *confFilePath)
+        return
+    }
+
+	// setup application
 
 	// register with supervisor
 	log.Info("Joining supervisor")
