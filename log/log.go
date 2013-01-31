@@ -23,6 +23,7 @@ Package log contains a simple multi-level logger.
 package log
 
 import (
+	"errors"
 	"fmt"
 	"time"
 )
@@ -38,17 +39,17 @@ type logger struct {
 	level int
 }
 
-var l logger
+var l logger = logger{1}
 
 // SetLevel sets the output level for the global logger
-func SetLevel(level int) {
+func SetLevel(level int) error {
 
-	if level <= DEBUG {
+	if level <= DEBUG && level >= ERROR {
 		l.level = level
-		return
+		return nil
 	}
 
-	panic(fmt.Sprintf("Unknown log level %v", level))
+	return errors.New(fmt.Sprintf("Unknown log level %v", level))
 }
 
 func print(level int, format string, v ...interface{}) {
