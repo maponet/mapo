@@ -43,12 +43,12 @@ var l logger
 // SetLevel sets the output level for the global logger
 func SetLevel(level int) {
 
-    if level <= DEBUG {
-        l.level = level
-        return
-    }
+	if level <= DEBUG {
+		l.level = level
+		return
+	}
 
-    panic(fmt.Sprintf("Unknown log level %v", level))
+	panic(fmt.Sprintf("Unknown log level %v", level))
 }
 
 func print(level int, format string, v ...interface{}) {

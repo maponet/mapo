@@ -20,14 +20,14 @@ along with Mapo.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"mapo/admin"
 	"mapo/log"
-    "mapo/admin"
 
-    "net/http"
-    "os"
-    "os/signal"
-    "syscall"
-    "flag"
+	"flag"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -35,21 +35,21 @@ func main() {
 	log.Info("Starting application")
 
 	// parse flags
-    var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
-    var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
-    flag.Parse()
+	var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
+	var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
+	flag.Parse()
 
-    // set log level
+	// set log level
 	log.SetLevel(*logLevel)
 	log.Info("Setting log level to %d", *logLevel)
 
 	// load config and setup application
 	log.Info("Loading configuration from file")
-    err := admin.ReadConfiguration(*confFilePath)
-    if err != nil {
-        log.Info("%s, no such file or directory", *confFilePath)
-        return
-    }
+	err := admin.ReadConfiguration(*confFilePath)
+	if err != nil {
+		log.Info("%s, no such file or directory", *confFilePath)
+		return
+	}
 
 	// setup application
 
@@ -59,37 +59,37 @@ func main() {
 	// load addons
 	log.Info("Loading addons")
 
-    // al momento del spegnimento dell'applicazione potremo trovarci con delle
-    // connessione attive dal parte del cliente. Il handler personalizzato usato
-    // qui, ci permette di dire al server di spegnersi ma prima deve aspettare
-    // che tutte le richieste siano processate e la connessione chiusa.
-    //
-    // Oltre al spegnimento sicuro il ServeMux permette di registra dei nuovi
-    // handler usando come descrizione anche il metodo http tipo GET o POST.
-    muxer := NewServeMux()
+	// al momento del spegnimento dell'applicazione potremo trovarci con delle
+	// connessione attive dal parte del cliente. Il handler personalizzato usato
+	// qui, ci permette di dire al server di spegnersi ma prima deve aspettare
+	// che tutte le richieste siano processate e la connessione chiusa.
+	//
+	// Oltre al spegnimento sicuro il ServeMux permette di registra dei nuovi
+	// handler usando come descrizione anche il metodo http tipo GET o POST.
+	muxer := NewServeMux()
 
-    // prepare server
-    server := &http.Server {
-        Addr:   ":8081",
-        Handler: muxer,
-    }
+	// prepare server
+	server := &http.Server{
+		Addr:    ":8081",
+		Handler: muxer,
+	}
 
-    c := make(chan os.Signal, 1)
-    signal.Notify(c, syscall.SIGINT)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT)
 
-    // aviamo in una nuova gorutine la funzione che ascolterà per il segnale di
-    // spegnimento del server
-    go muxer.getSignalAndClose(c)
+	// aviamo in una nuova gorutine la funzione che ascolterà per il segnale di
+	// spegnimento del server
+	go muxer.getSignalAndClose(c)
 
 	// register handlers
 	log.Info("Registering handlers")
 
-    // register with supervisor
+	// register with supervisor
 	log.Info("Joining supervisor")
 
 	// start server
 	log.Info("Listening for requests")
-    log.Info("close server with message: %v", server.ListenAndServe())
+	log.Info("close server with message: %v", server.ListenAndServe())
 
 	// inform supervisor that we are up
 
