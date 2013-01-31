@@ -20,32 +20,31 @@ along with Mapo.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"mapo/admin"
 	"mapo/log"
-    "mapo/admin"
 
-    "flag"
+	"flag"
 )
 
 func main() {
-
 	log.Info("Starting application")
 
 	// parse flags
-    var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
-    var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
-    flag.Parse()
+	var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
+	var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
+	flag.Parse()
 
-    // set log level
+	// set log level
 	log.SetLevel(*logLevel)
 	log.Info("Setting log level to %d", *logLevel)
 
 	// load config and setup application
 	log.Info("Loading configuration from file")
-    err := admin.ReadConfiguration(*confFilePath)
-    if err != nil {
-        log.Info("%s, no such file or directory", *confFilePath)
-        return
-    }
+	err := admin.ReadConfiguration(*confFilePath)
+	if err != nil {
+		log.Info("%s, no such file or directory", *confFilePath)
+		return
+	}
 
 	// setup application
 
@@ -67,20 +66,19 @@ func main() {
 	// inform supervisor that we are up
 
 	// for each request
-		// check authentication/authorization
+	// 	check authentication/authorization
 
-		// extract request operation
+	// 	extract request operation
 
-		// extract request arguments
+	// 	extract request arguments
 
-		// pass operation and arguments to api.router
+	// 	pass operation and arguments to api.router
 
-			// find function mapped to operation
+	// 	find function mapped to operation
 
-			// call function with arguments
+	// 	call function with arguments
 
-		// return result to user
-
+	// return result to user
 
 	// close on signal
 	log.Info("Closing application")
