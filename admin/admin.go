@@ -23,7 +23,7 @@ Package admin implements the API for Mapo's administration components.
 package admin
 
 import (
-    "gconf/conf"
+	"gconf/conf"
 )
 
 /*
@@ -37,10 +37,10 @@ ReadConfiguration, attiva il GlobalConfiguration.
 */
 func ReadConfiguration(filepath string) error {
 
-    c, err := conf.ReadConfigFile(filepath)
-    if err == nil {
-        GlobalConfiguration = c
-    }
+	c, err := conf.ReadConfigFile(filepath)
+	if err == nil {
+		GlobalConfiguration = c
+	}
 
-    return err
+	return err
 }
