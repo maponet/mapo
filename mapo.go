@@ -40,8 +40,12 @@ func main() {
 	flag.Parse()
 
 	// set log level
-	log.SetLevel(*logLevel)
 	log.Info("Setting log level to %d", *logLevel)
+	if err := log.SetLevel(*logLevel); err != nil {
+		log.SetLevel(0)
+		log.Error("%v", err)
+		return
+	}
 
 	// load config and setup application
 	log.Info("Loading configuration from file")
@@ -107,7 +111,6 @@ func main() {
 			// call function with arguments
 
 		// return result to user
-
 
 	// close on signal
 	log.Info("Closing application")

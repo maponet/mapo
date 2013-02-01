@@ -23,7 +23,7 @@ Package admin implements the API for Mapo's administration components.
 package admin
 
 import (
-	"gconf/conf"
+	"goconf/conf"
 )
 
 /*
