@@ -20,15 +20,46 @@ along with Mapo.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"mapo/log"
+	"github.com/maponet/utils/log"
+	"github.com/maponet/utils/conf"
+
+	"flag"
 )
 
 func main() {
-	// parse flags
+
+	/*
+	parse flags
+
+	In some situation we will pass path to configuration file as a command line
+	value. This meaning that for first off all we need to define and parse all flags.
+	The only flag that we required on this step is only conf flag ... But we
+	can't distribute code with same functionality along file or files.
+	*/
+	var logLevel = log.FlagLevel("log")
+	var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
+	flag.Parse()
 
 	// load config and setup application
-	log.SetLevel(log.DEBUG)
-	log.Info("Setting log level to DEBUG")
+	err := conf.ParseConfigFile(*confFilePath)
+	if err != nil {
+		log.Error("%v", err)
+		return
+	}
+
+	// setup configuration value passed as command line arguments
+	if len(*logLevel) > 0 {
+		conf.GlobalConfiguration.AddOption("default", "loglevel", *logLevel)
+	}
+
+	// setup application
+
+	// set log level
+	value, _ := conf.GlobalConfiguration.GetString("default", "loglevel")
+	if err := log.SetLevelString(value); err != nil {
+		log.Error("%v", err)
+		return
+	}
 
 	log.Info("Starting application")
 
@@ -63,7 +94,6 @@ func main() {
 			// call function with arguments
 
 		// return result to user
-
 
 	// close on signal
 	log.Info("Closing application")
