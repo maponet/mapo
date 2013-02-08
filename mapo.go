@@ -20,9 +20,9 @@ along with Mapo.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"mapo/log"
-    "mapo/admin"
     "mapo/db"
+	"github.com/maponet/utils/log"
+	"github.com/maponet/utils/conf"
 
 	"flag"
 	"net/http"
@@ -33,30 +33,40 @@ import (
 
 func main() {
 
-	log.Info("Starting application")
+	/*
+	parse flags
 
-	// parse flags
-	var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
+	In some situation we will pass path to configuration file as a command line
+	value. This meaning that for first off all we need to define and parse all flags.
+	The only flag that we required on this step is only conf flag ... But we
+	can't distribute code with same functionality along file or files.
+	*/
+	var logLevel = log.FlagLevel("log")
 	var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
 	flag.Parse()
 
-	// set log level
-	log.Info("Setting log level to %d", *logLevel)
-	if err := log.SetLevel(*logLevel); err != nil {
-		log.SetLevel(0)
+	// load config and setup application
+	err := conf.ParseConfigFile(*confFilePath)
+	if err != nil {
 		log.Error("%v", err)
 		return
 	}
 
-	// load config and setup application
-	log.Info("Loading configuration from file")
-	err := admin.ReadConfiguration(*confFilePath)
-	if err != nil {
-		log.Info("%s, no such file or directory", *confFilePath)
-		return
+	// setup configuration value passed as command line arguments
+	if len(*logLevel) > 0 {
+		conf.GlobalConfiguration.AddOption("default", "loglevel", *logLevel)
 	}
 
 	// setup application
+
+	// set log level
+	value, _ := conf.GlobalConfiguration.GetString("default", "loglevel")
+	if err := log.SetLevelString(value); err != nil {
+		log.Error("%v", err)
+		return
+	}
+
+	log.Info("Starting application")
 
 	// init db
 	log.Info("Initializing db")
