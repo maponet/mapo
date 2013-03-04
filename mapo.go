@@ -20,31 +20,45 @@ along with Mapo.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"mapo/admin"
-	"mapo/log"
+	"github.com/maponet/utils/log"
+	"github.com/maponet/utils/conf"
 
 	"flag"
 )
 
 func main() {
-	log.Info("Starting application")
+	var err error
+
+	// set config defaults
+	conf.Set("logLevel", "INFO")
 
 	// parse flags
-	var logLevel = flag.Int("log", 1, "set message level eg: 0 = DEBUG, 1 = INFO, 2 = ERROR")
-	var confFilePath = flag.String("conf", "./conf.ini", "set path to configuration file")
+	var flagLogLevel, flagConfPath string
+	flag.StringVar(&flagConfPath, "conf", "/etc/mapo/mapo.conf", "set path to configuration file")
+	flag.StringVar(&flagLogLevel, "log", "", "set loglevel [ERROR|INFO|DEBUG]")
 	flag.Parse()
 
-	// set log level
-	log.SetLevel(*logLevel)
-	log.Info("Setting log level to %d", *logLevel)
+	// load config from file
+	confErr := conf.ParseFile(flagConfPath)
 
-	// load config and setup application
-	log.Info("Loading configuration from file")
-	err := admin.ReadConfiguration(*confFilePath)
-	if err != nil {
-		log.Info("%s, no such file or directory", *confFilePath)
-		return
+	// override config settings with command line flags
+	if flagLogLevel != "" {
+		conf.Set("logLevel", flagLogLevel)
 	}
+
+	logLevel, _ := conf.GetString("logLevel")
+	err = log.SetLevel(logLevel)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	log.Info("Starting application")
+	if confErr == nil {
+		log.Info("Loaded configuration file: %s", flagConfPath)
+	} else {
+		log.Error("Can't load config file (%s), using defaults", confErr.Error())
+	}
+	log.Info("Setting log level to: %s", logLevel)
 
 	// setup application
 
