@@ -20,17 +20,47 @@ along with Mapo.  If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
-	"mapo/log"
+	"github.com/maponet/utils/log"
+	"github.com/maponet/utils/conf"
+
+	"flag"
 )
 
 func main() {
-	// parse flags
+	var err error
 
-	// load config and setup application
-	log.SetLevel(log.DEBUG)
-	log.Info("Setting log level to DEBUG")
+	// set config defaults
+	conf.Set("logLevel", "INFO")
+
+	// parse flags
+	var flagLogLevel, flagConfPath string
+	flag.StringVar(&flagConfPath, "conf", "/etc/mapo/mapo.conf", "set path to configuration file")
+	flag.StringVar(&flagLogLevel, "log", "", "set loglevel [ERROR|INFO|DEBUG]")
+	flag.Parse()
+
+	// load config from file
+	confErr := conf.ParseFile(flagConfPath)
+
+	// override config settings with command line flags
+	if flagLogLevel != "" {
+		conf.Set("logLevel", flagLogLevel)
+	}
+
+	logLevel, _ := conf.GetString("logLevel")
+	err = log.SetLevel(logLevel)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
 	log.Info("Starting application")
+	if confErr == nil {
+		log.Info("Loaded configuration file: %s", flagConfPath)
+	} else {
+		log.Error("Can't load config file (%s), using defaults", confErr.Error())
+	}
+	log.Info("Setting log level to: %s", logLevel)
+
+	// setup application
 
 	// register with supervisor
 	log.Info("Joining supervisor")
@@ -50,20 +80,19 @@ func main() {
 	// inform supervisor that we are up
 
 	// for each request
-		// check authentication/authorization
+	// 	check authentication/authorization
 
-		// extract request operation
+	// 	extract request operation
 
-		// extract request arguments
+	// 	extract request arguments
 
-		// pass operation and arguments to api.router
+	// 	pass operation and arguments to api.router
 
-			// find function mapped to operation
+	// 	find function mapped to operation
 
-			// call function with arguments
+	// 	call function with arguments
 
-		// return result to user
-
+	// return result to user
 
 	// close on signal
 	log.Info("Closing application")
